@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>1D Pacman</title>
+</head>
+<body>
+<h1>1D Pacman</h1>
+<div id="game"></div>
+<p>Score: <span id="score">0</span></p>
+<p>Level: <span id="level">1</span></p>
+
+<script>
+    const gameDiv = document.getElementById('game');
+    const scoreInt = document.getElementById('score');
+    const levelInt = document.getElementById('level');
+
+    let pacmanIndex;
+    let ghostIndex;
+    let score;
+    let level;
+    let gameBoard;
+
+
+    function createGame(n) {
+        gameBoard = new Array(n).fill('.');
+
+        // place pac man
+        pacmanIndex = Math.floor(n / 2);
+        gameBoard[pacmanIndex] = 'C';
+
+        // place ghost
+        do {
+            ghostIndex = Math.floor(Math.random() * n);
+        }
+        while (ghostIndex === pacmanIndex);
+        gameBoard[ghostIndex] = '^';
+
+        // place fruit
+
+        let fruitIndex;
+
+        do {
+            fruitIndex = Math.floor(Math.random() * n);
+        }
+        while (fruitIndex === pacmanIndex || fruitIndex === ghostIndex);
+        gameBoard[fruitIndex] = '@';
+
+        score = 0;
+        level = 1;
+
+        renderGame();
+    }
+
+    function renderGame() {
+        gameDiv.textContent = gameBoard.join('');
+        
+        scoreInt.textContent = score;
+        levelInt.textContent = level;
+    }
+
+    function moveLeft() {
+        if (pacmanIndex > 0) {
+            gameBoard[pacmanIndex] = '.';
+            pacmanIndex--;
+            
+            move();
+        }
+    }
+
+    function moveRight() {
+        if (pacmanIndex < gameBoard.length - 1) {
+            gameBoard[pacmanIndex] = '.';
+            pacmanIndex++;
+            
+            move();
+        }
+    }
+
+    function move() {
+        if (gameBoard[pacmanIndex] === '.') {
+            score++;
+            gameBoard[pacmanIndex] = ' ';
+
+        } else if (gameBoard[pacmanIndex] === '@') {
+            score += 10;
+            gameBoard[pacmanIndex] = ' ';
+        }
+
+        gameBoard[pacmanIndex] = 'C';
+
+        if (gameBoard.every(cell => cell !== '.' && cell !== '@')) {
+            level++;
+            createGame(gameBoard.length);
+        } else {
+            renderGame();
+        }
+    }
+
+    function moveGhost() {
+        const directions = [-1, 1];
+        const direction = directions[Math.floor(Math.random() * 2)];
+
+        if (
+            (direction === -1 && ghostIndex > 0) ||
+            (direction === 1 && ghostIndex < gameBoard.length - 1)
+        ) {
+            gameBoard[ghostIndex] = '.';
+            ghostIndex += direction;
+            gameBoard[ghostIndex] = '^';
+            renderGame();
+        }
+    }
+
+    createGame(40);
+    setInterval(moveGhost, 2000);
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft') {
+            moveLeft();
+        } else if (event.key === 'ArrowRight') {
+            moveRight();
+        }
+    });
+
+</script>
+</body>
+</html>
